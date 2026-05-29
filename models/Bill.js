@@ -19,4 +19,4 @@ const billSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Bill', billSchema);
+module.exports = mongoose.model('Bill', billSchema); //
