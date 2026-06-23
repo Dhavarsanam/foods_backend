@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
 const otpStore = {};
@@ -23,49 +22,19 @@ router.post('/send-otp', async (req, res) => {
       expiresAt: Date.now() + 5 * 60 * 1000,
     };
 
-    console.log('GMAIL_USER:', process.env.GMAIL_USER);
-    console.log('OWNER_EMAIL:', process.env.OWNER_EMAIL);
-    console.log('PASS EXISTS:', !!process.env.GMAIL_PASS);
-
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-      },
-      connectionTimeout: 60000,
-      greetingTimeout: 30000,
-      socketTimeout: 60000,
-    });
-
-    await transporter.sendMail({
-      from: `"Namma Hotel" <${process.env.GMAIL_USER}>`,
-      to: process.env.OWNER_EMAIL,
-      subject: `Login OTP - ${phone}`,
-      html: `
-        <div style="font-family:Arial,sans-serif">
-          <h2>Namma Hotel Login OTP</h2>
-          <p>Mobile Number: ${phone}</p>
-          <h1>${otp}</h1>
-          <p>Valid for 5 minutes only.</p>
-        </div>
-      `,
-    });
-
-    console.log(`OTP sent successfully for ${phone}`);
+    // OTP Render Logs-la mattum varum
+    console.log('================================');
+    console.log(`PHONE : ${phone}`);
+    console.log(`OTP   : ${otp}`);
+    console.log('================================');
 
     return res.json({
       success: true,
-      message: 'OTP sent',
+      message: 'OTP generated successfully',
     });
 
   } catch (e) {
-    console.error('================================');
-    console.error('SEND OTP ERROR');
-    console.error(e);
-    console.error('================================');
+    console.error('SEND OTP ERROR:', e);
 
     return res.status(500).json({
       success: false,
