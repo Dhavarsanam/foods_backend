@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const otpStore = {};
 
-// POST /api/auth/send-otp
+// ================= SEND OTP =================
 router.post('/send-otp', async (req, res) => {
   try {
     const { phone } = req.body;
@@ -12,7 +12,7 @@ router.post('/send-otp', async (req, res) => {
     if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid phone number'
+        message: 'Invalid phone number',
       });
     }
 
@@ -22,6 +22,10 @@ router.post('/send-otp', async (req, res) => {
       otp,
       expiresAt: Date.now() + 5 * 60 * 1000,
     };
+
+    console.log('GMAIL_USER:', process.env.GMAIL_USER);
+    console.log('OWNER_EMAIL:', process.env.OWNER_EMAIL);
+    console.log('PASS EXISTS:', !!process.env.GMAIL_PASS);
 
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
@@ -41,18 +45,20 @@ router.post('/send-otp', async (req, res) => {
       to: process.env.OWNER_EMAIL,
       subject: `Login OTP - ${phone}`,
       html: `
-        <h2>Namma Hotel Login OTP</h2>
-        <p>Mobile Number: ${phone}</p>
-        <h1>${otp}</h1>
-        <p>Valid for 5 minutes only.</p>
+        <div style="font-family:Arial,sans-serif">
+          <h2>Namma Hotel Login OTP</h2>
+          <p>Mobile Number: ${phone}</p>
+          <h1>${otp}</h1>
+          <p>Valid for 5 minutes only.</p>
+        </div>
       `,
     });
 
-    console.log(`OTP sent for ${phone}: ${otp}`);
+    console.log(`OTP sent successfully for ${phone}`);
 
     return res.json({
       success: true,
-      message: 'OTP sent'
+      message: 'OTP sent',
     });
 
   } catch (e) {
@@ -68,7 +74,7 @@ router.post('/send-otp', async (req, res) => {
   }
 });
 
-// POST /api/auth/verify-otp
+// ================= VERIFY OTP =================
 router.post('/verify-otp', async (req, res) => {
   try {
     const { phone, otp } = req.body;
@@ -76,7 +82,7 @@ router.post('/verify-otp', async (req, res) => {
     if (!phone || !otp) {
       return res.status(400).json({
         success: false,
-        message: 'Phone and OTP required'
+        message: 'Phone and OTP required',
       });
     }
 
@@ -85,22 +91,23 @@ router.post('/verify-otp', async (req, res) => {
     if (!stored) {
       return res.status(400).json({
         success: false,
-        message: 'OTP not found. Request again.'
+        message: 'OTP not found. Request again.',
       });
     }
 
     if (Date.now() > stored.expiresAt) {
       delete otpStore[phone];
+
       return res.status(400).json({
         success: false,
-        message: 'OTP expired. Request again.'
+        message: 'OTP expired. Request again.',
       });
     }
 
     if (stored.otp !== otp.trim()) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid OTP'
+        message: 'Invalid OTP',
       });
     }
 
@@ -114,15 +121,15 @@ router.post('/verify-otp', async (req, res) => {
 
     return res.json({
       success: true,
-      token
+      token,
     });
 
   } catch (e) {
-    console.error('verify-otp error:', e);
+    console.error('VERIFY OTP ERROR:', e);
 
     return res.status(500).json({
       success: false,
-      message: e.message
+      message: e.message,
     });
   }
 });
