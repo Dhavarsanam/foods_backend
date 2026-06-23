@@ -64,10 +64,16 @@ router.post('/send-otp', async (req, res) => {
     res.json({ success: true, message: 'OTP sent' });
 
   } catch (e) {
-    console.error('send-otp error:', e.message);
-    res.status(500).json({ success: false, message: e.message });
-  }
-});
+      console.error('================================');
+      console.error('SEND OTP ERROR');
+      console.error(e);
+      console.error('================================');
+
+      res.status(500).json({
+        success: false,
+        message: e.message,
+      });
+    }
 
 // POST /api/auth/verify-otp
 router.post('/verify-otp', async (req, res) => {
